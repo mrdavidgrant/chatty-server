@@ -58,7 +58,8 @@ function bufferMessage(msg) {
   if (messageBuffer.length <= 10) {
     messageBuffer.push(msg)
   } else {
-    messageBuffer.shift().push(msg)
+    messageBuffer.shift()
+    messageBuffer.push(msg)
   }
 }
 
