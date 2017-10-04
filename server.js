@@ -1,5 +1,5 @@
 // server.js
-
+const randomColor = require('randomcolor')
 const express = require('express');
 const SocketServer = require('ws').Server;
 const uuid4 = require ('uuid/v4')
@@ -18,6 +18,7 @@ const server = express()
 const wss = new SocketServer({ server });
 let messageBuffer = []
 let clientCount = 0
+let userList = {}
 
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
@@ -33,9 +34,11 @@ wss.on('connection', (client) => {
     switch(msg.type) {
       case "postMessage":
         msg.type = 'incomingMessage'
+        msg.color = userList[msg.userid].color
         break
       case "postNotification":
         msg.type = 'incomingNotification'
+        msg.color = userList[msg.userid].color
         break
       default:
         console.log(msg.type)
@@ -66,6 +69,16 @@ function newConnection (client) {
   if (messageBuffer.length){
     client.send(JSON.stringify(messageBuffer))
   }
+  let user = {
+    userid: uuid4(),
+    color: randomColor()
+  }
+  let content = {
+    type: 'incomingUser',
+    content: user
+  }
+  userList[user.userid] = user
+  client.send(JSON.stringify(content))
 }
   
 function broadcast(msg) {
